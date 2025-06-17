@@ -1,19 +1,19 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:vector_math/vector_math.dart' as vector;
 
-void main() => runApp(MaterialApp(home: Scaffold(body: CreateApp())));
+void main() => runApp(const MaterialApp(home: Scaffold(body: CreateApp())));
 
 num map(num value,
         [num iStart = 0, num iEnd = pi * 2, num oStart = 0, num oEnd = 1.0]) =>
     ((oEnd - oStart) / (iEnd - iStart)) * (value - iStart) + oStart;
 
 class CreateApp extends StatefulWidget {
+  const CreateApp({super.key});
+
   @override
   CreateAppState createState() => CreateAppState();
 }
@@ -71,7 +71,7 @@ class CreateAppState extends State<CreateApp> with TickerProviderStateMixin {
     }
   }
 
-  static const int skinType = 2;
+  static const int skinType = 1;
   @override
   void initState() {
     super.initState();
@@ -167,7 +167,7 @@ class CreateAppState extends State<CreateApp> with TickerProviderStateMixin {
           onPressed: () {
             debugPrint("$_x, $_y");
           },
-          child: Icon(Icons.map),
+          child: const Icon(Icons.map),
         ),
       ),
       Positioned(
@@ -175,11 +175,11 @@ class CreateAppState extends State<CreateApp> with TickerProviderStateMixin {
         right: 20,
         child: FloatingActionButton(
           onPressed: _rollDice,
-          child: Icon(Icons.casino),
+          child: const Icon(Icons.casino),
         ),
       ),
       Transform.translate(
-        offset: Offset(0, -180),
+        offset: const Offset(0, -180),
         child: Center(
           child: Text("X: $_x Y: $_y"),
         ),
@@ -188,230 +188,15 @@ class CreateAppState extends State<CreateApp> with TickerProviderStateMixin {
   }
 }
 
-class CubePainter extends CustomPainter {
-  CubePainter({
-    required this.x,
-    required this.y,
-    required this.size,
-    required this.color,
-    required this.textures,
-  });
-
-  final double x, y, size;
-  final Color color;
-
-  final List<ui.Image> textures;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color;
-
-    final double halfSize = this.size / 2;
-
-    final List<_Face> faces = [
-      _Face(
-        vertices: [
-          _vertex(halfSize, halfSize, halfSize),
-          _vertex(halfSize, halfSize, -halfSize),
-          _vertex(halfSize, -halfSize, -halfSize),
-          _vertex(halfSize, -halfSize, halfSize),
-        ],
-        rotationOrder: _calculateRotationOrder(vector.Vector3(1, 0, 0)),
-        texture: textures[0],
-        sideNumber: 1,
-        textureCoordinates: [
-          Offset(1, 1),
-          Offset(1, 0),
-          Offset(0, 0),
-          Offset(0, 1),
-        ],
-      ),
-      _Face(
-        vertices: [
-          _vertex(-halfSize, halfSize, halfSize),
-          _vertex(-halfSize, halfSize, -halfSize),
-          _vertex(-halfSize, -halfSize, -halfSize),
-          _vertex(-halfSize, -halfSize, halfSize),
-        ],
-        rotationOrder: _calculateRotationOrder(vector.Vector3(-1, 0, 0)),
-        texture: textures[1],
-        sideNumber: 2,
-        textureCoordinates: [
-          Offset(0, 1),
-          Offset(0, 0),
-          Offset(1, 0),
-          Offset(1, 1),
-        ],
-      ),
-      _Face(
-        vertices: [
-          _vertex(halfSize, halfSize, halfSize),
-          _vertex(-halfSize, halfSize, halfSize),
-          _vertex(-halfSize, -halfSize, halfSize),
-          _vertex(halfSize, -halfSize, halfSize),
-        ],
-        rotationOrder: _calculateRotationOrder(vector.Vector3(0, 0, 1)),
-        texture: textures[2],
-        sideNumber: 3,
-        textureCoordinates: [
-          Offset(0, 1),
-          Offset(0, 0),
-          Offset(1, 0),
-          Offset(1, 1),
-        ],
-      ),
-      _Face(
-        vertices: [
-          _vertex(halfSize, halfSize, -halfSize),
-          _vertex(-halfSize, halfSize, -halfSize),
-          _vertex(-halfSize, -halfSize, -halfSize),
-          _vertex(halfSize, -halfSize, -halfSize),
-        ],
-        rotationOrder: _calculateRotationOrder(vector.Vector3(0, 0, -1)),
-        texture: textures[3],
-        sideNumber: 4,
-        textureCoordinates: [
-          Offset(1, 1),
-          Offset(1, 0),
-          Offset(0, 0),
-          Offset(0, 1),
-        ],
-      ),
-      _Face(
-        vertices: [
-          _vertex(halfSize, halfSize, halfSize),
-          _vertex(-halfSize, halfSize, halfSize),
-          _vertex(-halfSize, halfSize, -halfSize),
-          _vertex(halfSize, halfSize, -halfSize),
-        ],
-        rotationOrder: _calculateRotationOrder(vector.Vector3(0, 1, 0)),
-        texture: textures[4],
-        sideNumber: 5,
-        textureCoordinates: [
-          Offset(0, 1),
-          Offset(0, 0),
-          Offset(1, 0),
-          Offset(1, 1),
-        ],
-      ),
-      _Face(
-        vertices: [
-          _vertex(halfSize, -halfSize, halfSize),
-          _vertex(-halfSize, -halfSize, halfSize),
-          _vertex(-halfSize, -halfSize, -halfSize),
-          _vertex(halfSize, -halfSize, -halfSize),
-        ],
-        rotationOrder: _calculateRotationOrder(vector.Vector3(0, -1, 0)),
-        texture: textures[5],
-        sideNumber: 6,
-        textureCoordinates: [
-          Offset(1, 1),
-          Offset(0, 1),
-          Offset(0, 0),
-          Offset(1, 0),
-        ],
-      ),
-    ];
-
-    final visibleFaces = faces.where((face) => face.rotationOrder > 0).toList()
-      ..sort((a, b) => a.rotationOrder.compareTo(b.rotationOrder));
-
-    for (final face in visibleFaces) {
-      final path = Path()
-        ..moveTo(face.vertices[0].dx, face.vertices[0].dy)
-        ..lineTo(face.vertices[1].dx, face.vertices[1].dy)
-        ..lineTo(face.vertices[2].dx, face.vertices[2].dy)
-        ..lineTo(face.vertices[3].dx, face.vertices[3].dy)
-        ..close();
-
-      // Create a matrix to map the texture correctly
-      final textureMatrix = Matrix4.identity()
-        ..translate(-face.vertices[0].dx, -face.vertices[0].dy)
-        ..scale(
-          (face.vertices[2].dx - face.vertices[0].dx) /
-              face.texture.width.toDouble(),
-          (face.vertices[2].dy - face.vertices[0].dy) /
-              face.texture.height.toDouble(),
-        )
-        ..translate(face.vertices[0].dx, face.vertices[0].dy);
-
-      final texturePaint = Paint()
-        ..shader = ImageShader(
-          face.texture,
-          TileMode.clamp,
-          TileMode.clamp,
-          textureMatrix.storage,
-        );
-
-      canvas.drawPath(path, paint);
-
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: face.sideNumber.toString(),
-          style: TextStyle(color: Colors.white),
-        ),
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.ltr,
-      )..layout();
-
-      final textOffset = Offset(
-        (face.vertices[0].dx + face.vertices[2].dx) / 2 - textPainter.width / 2,
-        (face.vertices[0].dy + face.vertices[2].dy) / 2 -
-            textPainter.height / 2,
-      );
-
-      textPainter.paint(canvas, textOffset);
-    }
-  }
-
-  Offset _vertex(double x, double y, double z) {
-    final matrix = vector.Matrix4.identity()
-      ..rotateX(this.x)
-      ..rotateY(this.y);
-
-    final transformed = matrix.transform3(vector.Vector3(x, y, z));
-
-    return Offset(transformed.x + size / 2, transformed.y + size / 2);
-  }
-
-  double _calculateRotationOrder(vector.Vector3 normal) {
-    final rotated =
-        vector.Matrix4.rotationX(x) * vector.Matrix4.rotationY(y) * normal;
-    return rotated.z;
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
-}
-
-class _Face {
-  _Face({
-    required this.vertices,
-    required this.rotationOrder,
-    required this.texture,
-    required this.sideNumber,
-    required this.textureCoordinates,
-  });
-
-  final List<Offset> vertices;
-  final double rotationOrder;
-  final ui.Image texture;
-  final int sideNumber;
-  final List<Offset> textureCoordinates;
-}
-
 class Cube extends StatelessWidget {
-  Cube(
-      {Key? key,
+  const Cube(
+      {super.key,
       required this.x,
       required this.y,
       required this.color,
       required this.size,
       required this.skinType,
-      this.rainbow = false})
-      : super(key: key);
+      this.rainbow = false});
 
   static const double _halfPi = pi / 2, _oneHalfPi = pi + pi / 2;
 
@@ -553,76 +338,6 @@ class Cube extends StatelessWidget {
             style: TextStyle(color: Colors.white, fontSize: 30),
           ),*/
                 Image.asset("assets/skin$skinType/face$sideNumber.png")),
-      ),
-    );
-  }
-}
-
-class CubeIllusion extends StatelessWidget {
-  CubeIllusion(
-      {Key? key,
-      required this.x,
-      required this.y,
-      required this.color,
-      required this.size,
-      this.rainbow = false})
-      : super(key: key);
-
-  static const double _halfPi = pi / 2, _oneHalfPi = pi + pi / 2;
-
-  final double x, y, size;
-  final Color color;
-  final bool rainbow;
-
-  double get _sum => (y + (x > pi ? pi : 0.0)).abs() % (pi * 2);
-
-  @override
-  Widget build(BuildContext context) {
-    final bool _topBottom = x < _halfPi || x > _oneHalfPi;
-    final bool _northSouth = _sum < _halfPi || _sum > _oneHalfPi;
-    final bool _eastWest = _sum < pi;
-
-    return Stack(children: <Widget>[
-      _side(zRot: y, xRot: -x, moveZ: _topBottom, sideNumber: 1),
-      _side(yRot: y, xRot: _halfPi - x, moveZ: _northSouth, sideNumber: 2),
-      _side(
-          yRot: -_halfPi + y,
-          xRot: _halfPi - x,
-          moveZ: _eastWest,
-          sideNumber: 3)
-    ]);
-  }
-
-  Widget _side(
-      {bool moveZ = true,
-      double xRot = 0.0,
-      double yRot = 0.0,
-      double zRot = 0.0,
-      required int sideNumber}) {
-    return Transform(
-      alignment: Alignment.center,
-      transform: Matrix4.identity()
-        ..rotateX(xRot)
-        ..rotateY(yRot)
-        ..rotateZ(zRot)
-        ..translate(0.0, 0.0, moveZ ? -size / 2 : size / 2),
-      child: Container(
-        alignment: Alignment.center,
-        child: Container(
-          constraints: BoxConstraints.expand(width: size, height: size),
-          color: color,
-          foregroundDecoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              border: Border.all(
-                  width: 0.8,
-                  color: rainbow ? color.withOpacity(0.9) : Colors.green)),
-          child: Center(
-            child: Text(
-              sideNumber.toString(),
-              style: TextStyle(color: Colors.white, fontSize: 30),
-            ),
-          ),
-        ),
       ),
     );
   }
