@@ -1,16 +1,25 @@
-# diceroller
+# 🎲 Flutter DiceRoller
 
-A new Flutter project.
+A 3D animated dice simulator built with Flutter. This app renders two interactive dice that can be rotated via touch or rolled with a smooth animation. Each die face is textured using custom assets and responds realistically to user input.
 
-## Getting Started
+![screenshot](preview.gif) <!-- optional: add preview.gif or screenshot -->
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## ✨ Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- 🎲 Two fully animated 3D dice
+- 🔄 Touch & drag to rotate in real-time
+- 🎰 "Roll Dice" button with elastic 3D animation
+- 🖼️ Customizable dice skins via asset images
+- 🧮 Realistic face visibility based on rotation matrix
+- 🧊 Matrix transformations and 3D vector math using `vector_math`
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 📦 Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/flutter_diceroller.git
+   cd flutter_diceroller
